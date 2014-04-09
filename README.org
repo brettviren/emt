@@ -1,1 +1,85 @@
 emt - Environment Management Tool
+
+* What is here
+
+This currently holds ideas for a tool that will assist in managing the environment typical for software used in HEP where much is built from source with many versions of a particular package around and where one wants to build and run ones own copy of   some software that is also available as part of a larger installed base release.
+
+** Stand on the noses of giants
+
+- Take ideas from Environment Modules (EM) and Code Management Tools (CMT) (EM+CMT=EMT).
+
+- Instead of TCL configuration files like EM =modulefiles= use declaritive Python =ConfigParser= syntax with =str.format()= like expansion / string interpolation and later interpretation in Python
+
+Note: EMT is Python2 and Python3 compatible and heavily nose tested.
+
+* EMT file conventions 
+
+EMT Configuration files are named with =.emt= extension by convention only but it's not required.
+
+A package instance (or just "package") means all files related to some
+software which has already been installed to some location.  
+
+A package is described in a =[package]= section of an EMT file.
+
+A package has a number of identifiers including =name= and =version=.  A special identifier =id= is used to refer to a package instance in a globally unique way.
+
+A package section may define or modify a number shell environment variables as needed to use the package.
+
+An EMT file may have multiple sections to describe more than one package.
+
+A package section does not necessarily mean the package is to be applied.
+
+EMT files are located through the following conventions applied in order:
+
+1) the file =~/.emt=
+2) the file =./config.emt=
+3) include directives 
+4) file discovery 
+
+Include directives and file discovery rely on a directory list called the EMT path.
+
+Include directives are listed in EMT files and simply name other files to include.  Their locations are resolved through iterating the EMT path.
+
+File discovery works by walking the EMT path to find EMT files.  For each directory in that path, files ending in =.emt= are collected.
+
+* EMT file loading
+
+An EMT configuration is produced in the following ordered steps
+
+- file collection :: follows above conventions and files are kept in the order found
+- file parsing :: files are effectively concatenated and all [package] sections are parsed and remain in order
+- interpolation :: any variables are interpolated
+- interpretation :: the configuration is used to do something
+
+* EMT configuration language
+
+** Syntax
+
+The EMT configuration syntax is that of Python's =ConfigParser= aka INI format.  It consists of a number of named sections each containing a number of key/value pairs, aka parameters aka configuration items.  Initial parsing treats all keys and values as literal strings.  Valid syntax allows any section names to be used.  Any unrecognized sections will be ignored.  Recognized sections include:
+
+- defaults :: specify default values of variables, multiple sections are merged.  In the case of duplication, last wins.  Default values are effectively merged into each package section. 
+- includes :: any number of sections may specify information about including files
+- package :: a package description
+
+** Interpolation
+
+Values undergo string interpolation.  This allows them to be composed from information specified elsewhere.  String interpolation is applied to the contents inside any braces '={}=' found.  These may reference other keys from the current section or from the =defaults= section by writing their key in braces.  Values from other packages may be referenced by prefixing their values with the =id= and a colon =:=.  
+
+#+INCLUDE: "./tests/configs/simple.emt" src config
+
+
+
+** Interpretation
+
+The EMT configuration is finally interpreted to produce some result.  The interpretation will take the post-interpolation configuration and apply some semantic meaning to the package configuration items.  Depending on what interpretation is made different keys may be used.  Some keys of importance are:
+
+- require :: assert a package requires another package as specified by the value
+- envvar_X :: the environment variable =X= should be set or modified as specified by the value
+- source :: the file identified by the value should be sourced 
+
+*** Require
+
+One package can require zero or more other packages to be available.  A single requirement is expressed as a Python logical expression using one or more package configuration items and matches zero or more packages.  The results of multiple requirements are logically or'ed together.
+
+#+INCLUDE: "./tests/configs/reqs.emt" src config
+

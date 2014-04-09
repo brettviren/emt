@@ -1,0 +1,21 @@
+[defaults]
+id = {name}-{version}
+
+[package]
+name = pkgA
+version = 1.0
+envvar_EMTPKG: pkgA
+envvar_LIST: append:pkgA
+
+[package]
+name = pkgB
+version = 2.0
+envvar_EMTPKG: pkgB
+envvar_LIST: append:pkgB
+
+[package]
+name = pkgC
+version = 3.0
+envvar_EMTPKG = set:pkgC
+envvar_LIST: prepend:pkgC
+
