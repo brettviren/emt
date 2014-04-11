@@ -1,15 +1,14 @@
 #!/usr/bin/env python
 
 import os
+import common
 import emt.files
-
-mydir = os.path.dirname(os.path.realpath(__file__))
 
 def test_find():
     '''
     Find some configuration files
     '''
-    for p in ['tests/configs', './tests/configs', os.path.join(mydir,'configs') ]:
+    for p in ['tests/configs', './tests/configs', os.path.join(common.test_dir,'configs') ]:
         for n in ['simple.emt', 'reqs.emt']:
             path = p
             res = emt.files.find(n, path)
@@ -42,3 +41,5 @@ def test_includes():
     assert 'include2.emt' in full[0]
     assert 'include1.emt' in full[1]
     assert 'start.emt' in full[2]
+
+

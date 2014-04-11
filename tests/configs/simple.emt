@@ -1,19 +1,20 @@
-[defaults]
-id = {name}-{version}
+[DEFAULT]
+id = ${name}-${version}
 
-[package]
+
+[packageA]
 name = pkgA
 version = 1.0
 envvar_EMTPKG: pkgA
 envvar_LIST: append:pkgA
 
-[package]
+[packageB]
 name = pkgB
 version = 2.0
 envvar_EMTPKG: pkgB
 envvar_LIST: append:pkgB
 
-[package]
+[packageC]
 name = pkgC
 version = 3.0
 envvar_EMTPKG = set:pkgC
