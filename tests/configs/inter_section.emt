@@ -1,0 +1,12 @@
+[one]
+name = one
+version = 1
+two_in_one_name = {two:name}
+lval = 1
+     2
+     3
+
+[two]
+name = two
+verison = 2
+one_in_two_name = {one:name}

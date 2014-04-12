@@ -58,29 +58,32 @@ An EMT configuration is produced in the following ordered steps
 
 The EMT configuration syntax is that of Python's =ConfigParser= aka INI format.  It consists of a number of named sections each containing a number of key/value pairs, aka parameters aka configuration items.  Initial parsing treats all keys and values as literal strings.  Valid syntax allows any section names to be used.  Any unrecognized sections will be ignored.  Recognized sections include:
 
-- defaults :: specify default values of variables, multiple sections are merged.  In the case of duplication, last wins.  Default values are effectively merged into each package section. 
-- includes :: any number of sections may specify information about including files
-- "package ID" :: any section not matching a reserved word is assumed to be a package identifier
+- DEFAULT :: specify default configuration items that apply to all other configuration sections but may be overridden by items set in the section.  
+- includes :: a special section to indicate other configuration files to load
+- "ID" :: any section not matching a reserved word above is assumed to be a package identifier
 
 ** Interpolation
 
-Values undergo string interpolation.  This allows them to be composed from information specified elsewhere.  String interpolation is applied to the contents inside any braces '={}=' found.  These may reference other keys from the current section or from the =defaults= section by writing their key in braces.  Values from other packages may be referenced by prefixing their values with the =id= and a colon =:=.  
+Values undergo string interpolation.  This allows them to be composed from information specified elsewhere.  String interpolation is applied by interpreting the value inside of braces '={}=' as a key that is defined elsewhere in the same section (or in =DEFAULT=).  Optionally a key may be composed of the name of a section and a key from that section separated by a colon ("=:=").
 
 #+INCLUDE: "./tests/configs/simple.emt" src config
 
 
+** Data Structure
+
+After interpolation the data structure containing the configuration is an ordered dictionary keyed by section names.  Each value is another ordered dictionary holding the configuration items from that section (or defined in the =DEFAULT= section).
 
 ** Interpretation
 
 The EMT configuration is finally interpreted to produce some result.  The interpretation will take the post-interpolation configuration and apply some semantic meaning to the package configuration items.  Depending on what interpretation is made different keys may be used.  Some keys of importance are:
 
-- require :: assert a package requires another package as specified by the value
+- require :: assert a package requires some other packages as specified by constraints
 - envvar_X :: the environment variable =X= should be set or modified as specified by the value
 - source :: the file identified by the value should be sourced 
 
 *** Require
 
-One package can require zero or more other packages to be available.  A single requirement is expressed as a Python logical expression using one or more package configuration items and matches zero or more packages.  The results of multiple requirements are logically or'ed together.
+One package can require zero or more other packages to be available by specifying a =require= configuration item.  The value of this item is one or more lines of Python logical expressions involving the configuration items of other package sections.  Each line is logically OR'ed.  Note, each element of a =require= must start at least one space from the start of a line to distinguish it from being a separate configuration item.  See the example below.
 
 #+INCLUDE: "./tests/configs/reqs.emt" src config
 
