@@ -1,21 +1,23 @@
 [DEFAULT]
 namever = {name}-{version}
+install_dir = /path/to/install
 
 [gcc 4.8.2]
 name = gcc
 version = 4.8.2
+envvar_PATH = prepend:{install_dir}/{name}/{version}
 
 [worch]
 name = worch
-tags = buildtool, automation, validation
+tags = buildtool automation validation
 
 [cmake 2.8.12]
 name = cmake
 version = 2.8.12
+envvar_PATH = prepend:{install_dir}/{name}/{version}
 
 [buildtools]
 name = mypkg
-require: 
-	 name=="gcc" and version >= "4.8.1" 
-	 "buildtool" in tags
-	  ID == "cmake 2.8.12"
+require: name=="gcc" and version >= "4.8.1" 
+	 or "buildtool" in tags 
+	 or ID == "cmake 2.8.12"

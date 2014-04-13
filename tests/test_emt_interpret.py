@@ -17,4 +17,4 @@ def test_dependencies():
     for sec,want in zip(cfg, expect):
         deps = emt.interpret.dependencies(sec, cfg)
         #print (deps)
-        assert deps == want
+        assert deps == want, deps
